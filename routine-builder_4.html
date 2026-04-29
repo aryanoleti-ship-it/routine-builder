@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Routine Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ═══ THEME TOKENS ═══ */
+:root,[data-theme="light"]{
+  --bg:#F8F8F6;--surface:#FFFFFF;--surface2:#F2F2EF;--surface3:#E4E4E0;
+  --text:#111110;--text2:#5C5C58;--text3:#9C9C96;
+  --border:#E2E2DE;--border2:#CACAC4;
+  --green:#2E7D52;--green-l:#3A9966;--green-dim:rgba(46,125,82,0.12);--green-light:#D6EDE1;
+  --red:#C0392B;--amber:#C07C1A;
+  --morning:#D97706;--afternoon:#2563EB;--night:#6B3FA0;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.12);
+  --modal-bg:rgba(0,0,0,.4);
+  --focus-bg:#0D1A10;
+  --onboard-card:#FFFFFF;
+  --chip-m-bg:#FEF3C7;--chip-m-c:#92400E;
+  --chip-a-bg:#DBEAFE;--chip-a-c:#1E40AF;
+  --chip-n-bg:#EDE9FE;--chip-n-c:#5B21B6;
+}
+[data-theme="dark"]{
+  --bg:#141414;--surface:#1E1E1E;--surface2:#272727;--surface3:#313131;
+  --text:#EFEFED;--text2:#A0A09A;--text3:#606060;
+  --border:#2E2E2E;--border2:#3C3C3C;
+  --green:#3DAD6A;--green-l:#4DC87C;--green-dim:rgba(61,173,106,0.14);--green-light:#163325;
+  --red:#E05C4A;--amber:#D4962A;
+  --morning:#F5A623;--afternoon:#4A90D9;--night:#9B72CF;
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.2);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.4);
+  --modal-bg:rgba(0,0,0,.65);
+  --focus-bg:#080F0A;
+  --onboard-card:#1E1E1E;
+  --chip-m-bg:#3D2D00;--chip-m-c:#F5A623;
+  --chip-a-bg:#0D1F3C;--chip-a-c:#4A90D9;
+  --chip-n-bg:#1E1330;--chip-n-c:#9B72CF;
+}
+
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5;transition:background .25s,color .25s}
+h1,h2,h3,h4{font-family:'DM Sans',sans-serif;font-weight:600;line-height:1.2}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;outline:none;transition:all .15s}
+input,textarea,select{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);outline:none;border:1.5px solid var(--border);border-radius:8px;padding:9px 13px;font-size:14px;width:100%;transition:border-color .2s,box-shadow .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-dim)}
+textarea{resize:vertical}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ═══ SCREENS ═══ */
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+.flex-screen{display:none;min-height:100vh;flex-direction:column}
+.flex-screen.active{display:flex}
+
+/* ═══ LANDING ═══ */
+.landing{min-height:100vh;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--bg);position:relative;overflow:hidden;display:none}
+.landing.active{display:flex}
+.landing-bg-blob{position:absolute;border-radius:50%;pointer-events:none;filter:blur(60px);opacity:.55}
+.landing-content{position:relative;z-index:1;max-width:560px;padding:48px 28px}
+.landing-logo{display:inline-flex;align-items:center;gap:8px;margin-bottom:36px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:7px 16px 7px 12px;box-shadow:var(--shadow)}
+.landing-dot{width:9px;height:9px;background:var(--green);border-radius:50%;box-shadow:0 0 0 3px var(--green-dim)}
+.landing-name{font-size:13.5px;font-weight:600;color:var(--text2);letter-spacing:.01em}
+.landing-greeting{font-size:13px;color:var(--text3);margin-bottom:16px;font-weight:400}
+.landing-headline{font-size:48px;font-weight:600;color:var(--text);line-height:1.06;margin-bottom:16px;letter-spacing:-2px}
+.landing-headline span{color:var(--green)}
+.landing-sub{font-size:15.5px;color:var(--text2);font-weight:300;margin-bottom:36px;line-height:1.7;max-width:420px;margin-left:auto;margin-right:auto}
+.landing-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.btn-lp{padding:12px 30px;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;transition:all .18s;border:none;letter-spacing:.01em}
+.btn-lp-primary{background:var(--green);color:#fff;box-shadow:0 2px 12px rgba(46,125,82,.28)}
+.btn-lp-primary:hover{background:var(--green-l);transform:translateY(-2px);box-shadow:0 4px 18px rgba(46,125,82,.35)}
+.btn-lp-ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border2)}
+.btn-lp-ghost:hover{background:var(--surface2);border-color:var(--green)}
+.landing-social{font-size:12px;color:var(--text3);margin-bottom:52px}
+.landing-social strong{color:var(--text2)}
+.landing-features{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:420px;margin:0 auto}
+.lf{text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:11px;transition:border-color .15s}
+.lf:hover{border-color:var(--green)}
+.lf-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.lf-lbl{font-size:12.5px;color:var(--text2);line-height:1.45;font-weight:400}
+/* dark toggle on landing */
+.landing-theme-btn{position:fixed;top:18px;right:20px;z-index:10;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:15px;color:var(--text2);cursor:pointer;transition:all .15s}
+.landing-theme-btn:hover{background:var(--surface2)}
+
+/* ═══ AUTH MODAL ═══ */
+.modal-overlay{position:fixed;inset:0;background:var(--modal-bg);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:16px;padding:36px 32px;width:100%;max-width:430px;box-shadow:var(--shadow-lg);position:relative;border:1px solid var(--border)}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:18px;color:var(--text3);cursor:pointer;padding:4px 8px;border-radius:6px}
+.modal-close:hover{background:var(--surface2);color:var(--text)}
+.modal-title{font-size:20px;font-weight:600;margin-bottom:5px}
+.modal-sub{font-size:13px;color:var(--text3);margin-bottom:24px}
+.fg{margin-bottom:14px}
+.fl{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px;display:block}
+.ferr{font-size:12px;color:var(--red);margin-top:4px;display:none}
+.ferr.show{display:block}
+.auth-sw{text-align:center;margin-top:18px;font-size:13px;color:var(--text3)}
+.auth-sw a{color:var(--green);font-weight:500;cursor:pointer;text-decoration:none}
+.auth-sw a:hover{text-decoration:underline}
+
+/* ═══ ONBOARDING MODAL ═══ */
+.onboard-overlay{position:fixed;inset:0;background:var(--modal-bg);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.onboard-overlay.open{display:flex}
+.onboard-modal{background:var(--onboard-card);border-radius:20px;padding:40px 36px;width:100%;max-width:560px;box-shadow:var(--shadow-lg);border:1px solid var(--border);position:relative}
+.onboard-step{display:none}
+.onboard-step.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.onboard-badge{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--green);text-transform:uppercase;margin-bottom:12px}
+.onboard-title{font-size:22px;font-weight:600;margin-bottom:8px}
+.onboard-sub{font-size:14px;color:var(--text2);margin-bottom:28px;line-height:1.6}
+.onboard-progress{display:flex;gap:5px;margin-bottom:28px}
+.op-dot{height:4px;border-radius:2px;background:var(--border2);flex:1;transition:background .3s}
+.op-dot.done{background:var(--green)}
+/* age slider */
+.age-display{font-size:48px;font-weight:600;color:var(--green);text-align:center;margin:12px 0 4px}
+.age-label{text-align:center;font-size:13px;color:var(--text3);margin-bottom:20px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:var(--surface3);border:none;outline:none;padding:0;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--green);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+input[type=range]:focus{box-shadow:none}
+/* life events grid */
+.events-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.event-chip{border:1.5px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center;cursor:pointer;transition:all .16s;background:var(--surface);user-select:none}
+.event-chip:hover{border-color:var(--green);background:var(--green-dim)}
+.event-chip.selected{border-color:var(--green);background:var(--green-dim);color:var(--green);font-weight:500}
+.event-chip .ec-icon{font-size:20px;display:block;margin-bottom:4px}
+.event-chip .ec-lbl{font-size:12px;color:var(--text2)}
+.event-chip.selected .ec-lbl{color:var(--green)}
+/* focus areas */
+.focus-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.focus-chip{border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;cursor:pointer;transition:all .16s;background:var(--surface);display:flex;align-items:center;gap:10px;user-select:none}
+.focus-chip:hover{border-color:var(--green);background:var(--green-dim)}
+.focus-chip.selected{border-color:var(--green);background:var(--green-dim)}
+.focus-chip .fc-icon{font-size:18px}
+.focus-chip .fc-lbl{font-size:13px;font-weight:400;color:var(--text2)}
+.focus-chip.selected .fc-lbl{color:var(--green);font-weight:500}
+/* priority sliders */
+.priority-row{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.pr-label{font-size:13px;font-weight:500;min-width:90px;display:flex;align-items:center;gap:6px}
+.pr-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pr-val{font-size:13px;font-weight:600;min-width:30px;text-align:right;color:var(--green)}
+.onboard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px}
+.ob-skip{font-size:12px;color:var(--text3);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0}
+.ob-skip:hover{color:var(--text2)}
+
+/* ═══ TOP NAV ═══ */
+.top-nav{background:var(--surface);border-bottom:1px solid var(--border);height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50;flex-shrink:0}
+.nav-left{display:flex;align-items:center;gap:4px}
+.nav-brand{display:flex;align-items:center;gap:8px;margin-right:16px}
+.nav-brand-dot{width:8px;height:8px;background:var(--green);border-radius:50%}
+.nav-brand-name{font-size:14px;font-weight:600;color:var(--text)}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{padding:6px 13px;border-radius:7px;font-size:13.5px;font-weight:400;color:var(--text2);background:transparent;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.nav-tab:hover{background:var(--surface2);color:var(--text)}
+.nav-tab.active{background:var(--green);color:#fff;font-weight:500}
+.nav-right{display:flex;align-items:center;gap:8px}
+.user-av{width:30px;height:30px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;flex-shrink:0}
+.user-nav-name{font-size:13px;font-weight:500;color:var(--text2)}
+.btn-signout{padding:5px 11px;background:transparent;border:1px solid var(--border);border-radius:7px;font-size:12.5px;color:var(--text2);cursor:pointer}
+.btn-signout:hover{background:var(--surface2)}
+.theme-toggle{width:34px;height:34px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.theme-toggle:hover{background:var(--surface3)}
+
+/* ═══ PAGE WRAP ═══ */
+.page-wrap{flex:1;overflow-y:auto;padding:30px 36px;max-width:880px;width:100%;margin:0 auto}
+
+/* ═══ CARDS ═══ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.card+.card{margin-top:13px}
+
+/* ═══ BUTTONS ═══ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;font-size:13.5px;font-weight:500;border:none;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green-l)}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-sm{padding:5px 11px;font-size:12.5px}
+.btn-full{width:100%;justify-content:center;padding:10px}
+.del-btn{padding:4px 7px;background:transparent;color:var(--text3);border-radius:5px;font-size:13px;cursor:pointer;border:none}
+.del-btn:hover{background:rgba(192,57,43,.15);color:var(--red)}
+
+/* ═══ PROGRESS ═══ */
+.prog{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:var(--green);transition:width .5s ease}
+
+/* ═══ DASHBOARD GREETING ═══ */
+.dash-greet{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px 30px;margin-bottom:20px}
+.dash-greet h2{font-size:25px;font-weight:600;margin-bottom:3px}
+.dash-date{font-size:13px;color:var(--text3);margin-bottom:18px}
+.dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.d-stat{background:var(--surface2);border-radius:8px;padding:13px 15px}
+.d-stat .dv{font-size:21px;font-weight:600}
+.d-stat .dl{font-size:11px;color:var(--text3);margin-top:2px}
+/* priority banner */
+.priority-banner{background:var(--green-light);border:1px solid var(--green-dim);border-radius:10px;padding:14px 16px;margin-bottom:18px;display:flex;align-items:flex-start;gap:12px}
+.pb-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.pb-text{font-size:13px;color:var(--text);line-height:1.55}
+.pb-title{font-weight:600;margin-bottom:2px}
+
+/* ═══ SECTION HEADER ═══ */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.sec-label{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:500}
+.pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ═══ STEP ITEMS ═══ */
+.step-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;transition:border-color .15s}
+.step-item:hover{border-color:var(--border2)}
+.step-item.done{opacity:.42}
+.step-item.done .sname{text-decoration:line-through;color:var(--text3)}
+.chk{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:transparent;transition:all .18s}
+.chk.done{background:var(--green);border-color:var(--green);color:#fff}
+.chk:hover{border-color:var(--green)}
+.sname{font-size:13.5px;flex:1;font-weight:400}
+.snote{font-size:11px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.smeta{font-size:11.5px;color:var(--text3);white-space:nowrap;display:flex;gap:5px;align-items:center}
+.time-tag{background:var(--surface2);border-radius:4px;padding:2px 6px;font-size:11px;color:var(--text2)}
+.drag-h{color:var(--text3);font-size:14px;cursor:grab;padding:2px 4px;opacity:.4;user-select:none}
+.drag-h:hover{opacity:1}
+
+/* ═══ ROUTINE TABS ═══ */
+.r-tabs{display:flex;gap:4px;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:17px}
+.r-tab{flex:1;padding:7px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);background:transparent;border:none;transition:all .15s;text-align:center}
+.r-tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* ═══ ADD FORM ═══ */
+.add-form{background:var(--surface2);border:1.5px dashed var(--border2);border-radius:10px;padding:15px;margin-top:10px;animation:sd .2s ease}
+@keyframes sd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.f-row{display:flex;gap:7px;margin-bottom:7px}
+.f-row input{flex:1}
+
+/* ═══ STATS GRID ═══ */
+.stats-3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:18px}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat-v{font-size:23px;font-weight:600;line-height:1}
+.stat-l{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* ═══ CHIPS ═══ */
+.chip{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.chip-m{background:var(--chip-m-bg);color:var(--chip-m-c)}
+.chip-a{background:var(--chip-a-bg);color:var(--chip-a-c)}
+.chip-n{background:var(--chip-n-bg);color:var(--chip-n-c)}
+
+/* ═══ TEMPLATES ═══ */
+.tpl-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.tpl-card{border:1.5px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s;background:var(--surface)}
+.tpl-card:hover{border-color:var(--green);box-shadow:0 0 0 3px var(--green-dim)}
+.tpl-icon{font-size:22px;margin-bottom:8px}
+.tpl-title{font-size:14px;font-weight:600;margin-bottom:3px}
+.tpl-desc{font-size:12px;color:var(--text3);line-height:1.5}
+
+/* ═══ INSIGHTS ═══ */
+.ins-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.ins-row:last-child{border-bottom:none}
+.ins-text{font-size:13px;flex:1;color:var(--text2)}
+.ins-val{font-size:13px;font-weight:500;white-space:nowrap}
+
+/* ═══ QUOTE ═══ */
+.quote-bar{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:17px}
+.quote-t{font-size:13px;font-style:italic;color:var(--text2);line-height:1.6}
+.quote-a{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ═══ ASK AI ═══ */
+.ai-avatar-sm{width:28px;height:28px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;flex-shrink:0}
+.user-avatar-sm{width:28px;height:28px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;color:var(--text2)}
+.ai-bubble{background:var(--surface2);padding:10px 14px;border-radius:12px 12px 12px 4px;font-size:13.5px;line-height:1.6;max-width:82%;color:var(--text);white-space:pre-line}
+.user-bubble{background:var(--green);padding:10px 14px;border-radius:12px 12px 4px 12px;font-size:13.5px;line-height:1.6;max-width:82%;color:#fff;white-space:pre-line}
+.apply-pill{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:6px 12px;background:var(--green-light);color:var(--green);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--green-dim);transition:all .15s}
+.apply-pill:hover{filter:brightness(.95)}
+.typing-dots{display:flex;gap:4px;align-items:center;padding:4px 2px}
+.tdot{width:6px;height:6px;background:var(--text3);border-radius:50%;animation:tb .7s infinite}
+.tdot:nth-child(2){animation-delay:.15s}.tdot:nth-child(3){animation-delay:.3s}
+@keyframes tb{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+.ai-textarea{border:1.5px solid var(--border);border-radius:20px;padding:9px 15px;font-size:13.5px;resize:none;max-height:100px;line-height:1.5;background:var(--surface2)}
+.ai-textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-dim)}
+.ai-send{width:38px;height:38px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;transition:all .15s;align-self:flex-end;cursor:pointer}
+.ai-send:hover{background:var(--green-l)}
+.qp{padding:6px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .14s;white-space:nowrap}
+.qp:hover{background:var(--green-light);border-color:var(--green);color:var(--green)}
+
+/* ═══ FOCUS MODE ═══ */
+.focus-ov{position:fixed;inset:0;background:var(--focus-bg);z-index:400;display:none;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;padding:40px}
+.focus-ov.open{display:flex}
+.f-badge{font-size:11px;letter-spacing:2.5px;opacity:.28;text-transform:uppercase;margin-bottom:18px}
+.f-period{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;opacity:.32;margin-bottom:10px}
+.f-task-name{font-size:36px;font-weight:600;margin-bottom:8px;max-width:500px}
+.f-timer{font-size:76px;font-weight:300;letter-spacing:-4px;color:#A8D5B9;margin:8px 0 12px}
+.f-next{font-size:13px;opacity:.32;margin-bottom:28px}
+.f-ctrls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.f-btn{padding:10px 22px;border-radius:10px;font-size:14px;font-weight:500;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.f-dots{display:flex;gap:5px;margin-top:20px;justify-content:center}
+.fdot{width:7px;height:7px;border-radius:50%;transition:all .3s}
+
+/* ═══ PAGE HEADER ═══ */
+.pg-hdr{margin-bottom:22px}
+.pg-title{font-size:22px;font-weight:600;margin-bottom:3px}
+.pg-sub{font-size:13px;color:var(--text3)}
+
+/* ═══ FADE ANIMATION ═══ */
+.fade-in{animation:fi .25s ease}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:720px){
+  .page-wrap{padding:18px 16px}
+  .stats-3,.dash-stats{grid-template-columns:1fr 1fr}
+  .tpl-grid{grid-template-columns:1fr}
+  .events-grid{grid-template-columns:repeat(2,1fr)}
+  .nav-tabs .nav-tab{font-size:12px;padding:5px 8px}
+  .top-nav{padding:0 14px}
+  .nav-brand-name{display:none}
+  .landing-headline{font-size:36px;letter-spacing:-1.5px}
+  .landing-features{grid-template-columns:1fr 1fr}
+  .landing-content{padding:36px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     LANDING
+══════════════════════════════════ -->
+<div id="landing" class="landing">
+  <button class="landing-theme-btn" id="landing-theme-btn" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+  <div class="landing-bg-blob" style="width:500px;height:500px;top:-180px;right:-160px;background:radial-gradient(circle,var(--green-dim) 0%,transparent 70%)"></div>
+  <div class="landing-bg-blob" style="width:360px;height:360px;bottom:-120px;left:-100px;background:radial-gradient(circle,var(--green-dim) 0%,transparent 70%)"></div>
+  <div class="landing-content">
+    <div class="landing-logo"><div class="landing-dot"></div><span class="landing-name">Routine Builder</span></div>
+    <div class="landing-greeting" id="landing-greeting"></div>
+    <h1 class="landing-headline">Build habits that<br><span>actually stick</span></h1>
+    <p class="landing-sub">Your personal daily routine planner with AI coaching built right in. Personalised to your age, goals, and life.</p>
+    <div class="landing-btns">
+      <button class="btn-lp btn-lp-primary" onclick="openAuth('signup')">Get started free →</button>
+      <button class="btn-lp btn-lp-ghost" onclick="openAuth('signin')">Sign in</button>
+    </div>
+    <div class="landing-social">Trusted by <strong>1,080+</strong> people building better routines</div>
+    <div class="landing-features">
+      <div class="lf"><div class="lf-icon">📋</div><div class="lf-lbl">Morning, afternoon & night routines</div></div>
+      <div class="lf"><div class="lf-icon">⏱</div><div class="lf-lbl">Focus mode with step-by-step timers</div></div>
+      <div class="lf"><div class="lf-icon">✦</div><div class="lf-lbl">AI coach personalised to your goals</div></div>
+      <div class="lf"><div class="lf-icon">📊</div><div class="lf-lbl">Track streaks and consistency</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     AUTH MODAL
+══════════════════════════════════ -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <div id="auth-content"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ONBOARDING MODAL
+══════════════════════════════════ -->
+<div class="onboard-overlay" id="onboard-overlay">
+  <div class="onboard-modal">
+    <div class="onboard-progress" id="ob-progress"></div>
+
+    <!-- Step 1: Age -->
+    <div class="onboard-step active" id="ob-step-1">
+      <div class="onboard-badge">Step 1 of 3</div>
+      <h2 class="onboard-title">How old are you?</h2>
+      <p class="onboard-sub">Your age shapes everything — your sleep needs, energy cycles, priorities, and what habits actually make sense for your life stage. The AI uses this to give you genuinely relevant suggestions, not generic ones.</p>
+      <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:10px 14px;margin-bottom:18px;display:flex;align-items:flex-start;gap:9px">
+        <span style="font-size:16px;flex-shrink:0">📌</span>
+        <span style="font-size:12.5px;color:var(--text);line-height:1.55"><strong>Please enter your real age.</strong> The more accurate you are, the more personalised and realistic the routine suggestions will be. A 16-year-old and a 40-year-old need very different morning routines — we tailor everything around yours.</span>
+      </div>
+      <div class="age-display" id="age-display">20</div>
+      <div class="age-label" id="age-label">University student</div>
+      <input type="range" min="10" max="80" value="20" id="age-slider" style="margin-bottom:8px"/>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3)"><span>10</span><span>80+</span></div>
+      <div class="onboard-nav">
+        <button class="ob-skip" onclick="skipOnboarding()">Skip setup</button>
+        <button class="btn btn-primary" onclick="obNext(1)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Life events -->
+    <div class="onboard-step" id="ob-step-2">
+      <div class="onboard-badge">Step 2 of 3</div>
+      <h2 class="onboard-title">What's going on in your life?</h2>
+      <p class="onboard-sub">Select everything that applies. This helps us understand what you're juggling so we can suggest the right routine focus areas.</p>
+      <div class="events-grid" id="events-grid">
+        <div class="event-chip" data-event="studying"><span class="ec-icon">📚</span><span class="ec-lbl">Studying / exams</span></div>
+        <div class="event-chip" data-event="work"><span class="ec-icon">💼</span><span class="ec-lbl">Full-time job</span></div>
+        <div class="event-chip" data-event="fitness"><span class="ec-icon">🏋️</span><span class="ec-lbl">Fitness goals</span></div>
+        <div class="event-chip" data-event="parenting"><span class="ec-icon">👶</span><span class="ec-lbl">Parenting</span></div>
+        <div class="event-chip" data-event="sideproject"><span class="ec-icon">🚀</span><span class="ec-lbl">Side project</span></div>
+        <div class="event-chip" data-event="health"><span class="ec-icon">❤️</span><span class="ec-lbl">Health / recovery</span></div>
+        <div class="event-chip" data-event="mental"><span class="ec-icon">🧘</span><span class="ec-lbl">Mental wellness</span></div>
+        <div class="event-chip" data-event="social"><span class="ec-icon">👥</span><span class="ec-lbl">Social life</span></div>
+        <div class="event-chip" data-event="creative"><span class="ec-icon">🎨</span><span class="ec-lbl">Creative work</span></div>
+      </div>
+      <div class="onboard-nav">
+        <button class="btn btn-ghost btn-sm" onclick="obBack(2)">← Back</button>
+        <button class="btn btn-primary" onclick="obNext(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Priority sliders -->
+    <div class="onboard-step" id="ob-step-3">
+      <div class="onboard-badge">Step 3 of 3</div>
+      <h2 class="onboard-title">Set your daily priorities</h2>
+      <p class="onboard-sub">How much focus should each part of your day get? Drag to adjust — your routines will be weighted accordingly.</p>
+      <div class="priority-row">
+        <div class="pr-label"><div class="pr-dot" style="background:var(--morning)"></div>Morning</div>
+        <input type="range" min="1" max="10" value="7" id="pr-morning" oninput="updatePrVal('morning',this.value)" style="flex:1"/>
+        <div class="pr-val" id="prv-morning">7</div>
+      </div>
+      <div class="priority-row">
+        <div class="pr-label"><div class="pr-dot" style="background:var(--afternoon)"></div>Afternoon</div>
+        <input type="range" min="1" max="10" value="6" id="pr-afternoon" oninput="updatePrVal('afternoon',this.value)" style="flex:1"/>
+        <div class="pr-val" id="prv-afternoon">6</div>
+      </div>
+      <div class="priority-row">
+        <div class="pr-label"><div class="pr-dot" style="background:var(--night)"></div>Evening</div>
+        <input type="range" min="1" max="10" value="5" id="pr-evening" oninput="updatePrVal('evening',this.value)" style="flex:1"/>
+        <div class="pr-val" id="prv-evening">5</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;font-size:12.5px;color:var(--text2);line-height:1.5;margin-top:4px" id="priority-hint"></div>
+      <div class="onboard-nav">
+        <button class="btn btn-ghost btn-sm" onclick="obBack(3)">← Back</button>
+        <button class="btn btn-primary" onclick="finishOnboarding()">Finish setup ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     APP
+══════════════════════════════════ -->
+<div id="app" class="flex-screen">
+  <nav class="top-nav">
+    <div class="nav-left">
+      <div class="nav-brand">
+        <div class="nav-brand-dot"></div>
+        <span class="nav-brand-name">Routine Builder</span>
+      </div>
+      <div class="nav-tabs" id="nav-tabs">
+        <button class="nav-tab active" data-page="dashboard">Dashboard</button>
+        <button class="nav-tab" data-page="builder">Builder</button>
+        <button class="nav-tab" data-page="insights">Insights</button>
+        <button class="nav-tab" data-page="templates">Templates</button>
+        <button class="nav-tab" data-page="askai">Ask AI</button>
+      </div>
+    </div>
+    <div class="nav-right">
+      <button class="theme-toggle" id="app-theme-btn" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+      <div style="display:flex;align-items:center;gap:7px">
+        <div class="user-av" id="nav-avatar">?</div>
+        <span class="user-nav-name" id="nav-username"></span>
+      </div>
+      <button class="btn-signout" onclick="signOut()">Sign out</button>
+    </div>
+  </nav>
+  <div class="page-wrap" id="main"></div>
+</div>
+
+<!-- FOCUS OVERLAY -->
+<div class="focus-ov" id="focus-ov">
+  <div class="f-badge">Focus Mode</div>
+  <div class="f-period" id="fp-period"></div>
+  <div class="f-task-name" id="fp-task"></div>
+  <div class="f-timer" id="fp-timer">00:00</div>
+  <div class="f-next" id="fp-next"></div>
+  <div class="f-ctrls">
+    <button class="f-btn" id="fp-play" style="background:#2E7D52;color:#fff;min-width:96px">Pause</button>
+    <button class="f-btn" id="fp-skip" style="background:rgba(255,255,255,.1);color:#fff">Skip →</button>
+    <button class="f-btn" id="fp-exit" style="background:rgba(255,255,255,.07);color:#fff">✕ Exit</button>
+  </div>
+  <div class="f-dots" id="fp-dots"></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   THEME
+══════════════════════════════════════════════ */
+let isDark = localStorage.getItem('rb_theme') === 'dark';
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  const icon = isDark ? '☀️' : '🌙';
+  document.querySelectorAll('#landing-theme-btn,#app-theme-btn').forEach(b=>{ if(b) b.textContent=icon; });
+}
+function toggleTheme(){
+  isDark = !isDark;
+  localStorage.setItem('rb_theme', isDark ? 'dark' : 'light');
+  applyTheme();
+}
+applyTheme();
+
+/* ══════════════════════════════════════════════
+   CONSTANTS
+══════════════════════════════════════════════ */
+const QUOTES=[
+  {t:"We are what we repeatedly do. Excellence is not an act, but a habit.",a:"Aristotle"},
+  {t:"The secret of your future is hidden in your daily routine.",a:"Mike Murdock"},
+  {t:"Motivation gets you started. Habit keeps you going.",a:"Jim Ryun"},
+  {t:"Small daily improvements over time lead to stunning results.",a:"Robin Sharma"},
+  {t:"Success is the sum of small efforts repeated day in and day out.",a:"Robert Collier"},
+];
+const PC={morning:'var(--morning)',afternoon:'var(--afternoon)',night:'var(--night)'};
+const PC_HEX={morning:'#D97706',afternoon:'#2563EB',night:'#6B3FA0'};
+function uid(){return Date.now()+Math.floor(Math.random()*9999)}
+
+/* ══════════════════════════════════════════════
+   DEFAULT DATA
+══════════════════════════════════════════════ */
+function defaultRoutines(){
+  return{
+    morning:[
+      {id:uid(),title:'Wake up & hydrate',dur:5,notes:'Drink 500ml water',done:false,time:'6:00 AM'},
+      {id:uid(),title:'Morning stretch',dur:10,notes:'Light yoga or stretch',done:false,time:'6:05 AM'},
+      {id:uid(),title:'Journaling',dur:15,notes:'3 gratitudes + plan',done:false,time:'6:15 AM'},
+      {id:uid(),title:'Healthy breakfast',dur:20,notes:'High protein, no screens',done:false,time:'6:30 AM'},
+    ],
+    afternoon:[
+      {id:uid(),title:'Review daily goals',dur:5,notes:'Check progress',done:false,time:'12:00 PM'},
+      {id:uid(),title:'Lunch break walk',dur:20,notes:'Fresh air, no phone',done:false,time:'12:30 PM'},
+      {id:uid(),title:'Deep work block',dur:90,notes:'Phone off, full focus',done:false,time:'1:00 PM'},
+    ],
+    night:[
+      {id:uid(),title:'Digital sunset',dur:10,notes:'No screens after 9 PM',done:false,time:'9:00 PM'},
+      {id:uid(),title:'Read',dur:30,notes:'Fiction or non-fiction',done:false,time:'9:10 PM'},
+      {id:uid(),title:'Prepare for tomorrow',dur:10,notes:'Lay out clothes, pack bag',done:false,time:'9:40 PM'},
+    ]
+  };
+}
+
+const TMPLS=[
+  {id:'student',icon:'📚',title:'Student Routine',desc:'Pomodoro blocks, review sessions & sleep-first scheduling.',
+    r:{morning:[{id:uid(),title:'Wake up',dur:5,notes:'',done:false,time:'7:00 AM'},{id:uid(),title:'Breakfast',dur:15,notes:'Fuel your brain',done:false,time:'7:05 AM'},{id:uid(),title:'Morning review',dur:20,notes:"Review yesterday's notes",done:false,time:'7:20 AM'}],
+       afternoon:[{id:uid(),title:'Study block (Pomodoro)',dur:90,notes:'25m work / 5m break',done:false,time:'2:00 PM'},{id:uid(),title:'Break',dur:15,notes:'Walk outside',done:false,time:'3:30 PM'},{id:uid(),title:'Practice problems',dur:45,notes:'Apply what you learned',done:false,time:'3:45 PM'}],
+       night:[{id:uid(),title:'Review & summarise',dur:20,notes:'Key concepts',done:false,time:'8:00 PM'},{id:uid(),title:'Prep for tomorrow',dur:10,notes:'Set out books',done:false,time:'8:20 PM'},{id:uid(),title:'Wind-down reading',dur:20,notes:'Fiction preferred',done:false,time:'9:00 PM'},{id:uid(),title:'Sleep',dur:480,notes:'8 hours',done:false,time:'9:30 PM'}]}},
+  {id:'fitness',icon:'💪',title:'Fitness Routine',desc:'Workout blocks, protein meals & recovery for peak performance.',
+    r:{morning:[{id:uid(),title:'Wake up & hydrate',dur:5,notes:'500ml water',done:false,time:'6:00 AM'},{id:uid(),title:'Pre-workout snack',dur:10,notes:'Banana + coffee',done:false,time:'6:05 AM'},{id:uid(),title:'Workout',dur:60,notes:'Strength or cardio',done:false,time:'6:15 AM'},{id:uid(),title:'Protein shake & shower',dur:20,notes:'',done:false,time:'7:15 AM'}],
+       afternoon:[{id:uid(),title:'High-protein lunch',dur:30,notes:'Chicken, rice, veg',done:false,time:'12:30 PM'},{id:uid(),title:'Active break',dur:15,notes:'Walk or stretch',done:false,time:'3:00 PM'}],
+       night:[{id:uid(),title:'Mobility & stretching',dur:15,notes:'Cool down',done:false,time:'8:00 PM'},{id:uid(),title:'Meal prep',dur:20,notes:"Tomorrow's meals",done:false,time:'8:15 PM'},{id:uid(),title:'Sleep',dur:480,notes:'Recovery is key',done:false,time:'9:30 PM'}]}},
+  {id:'entrepreneur',icon:'🚀',title:'Entrepreneur Routine',desc:'Deep work first, batched meetings & strategic planning.',
+    r:{morning:[{id:uid(),title:'Rise & review priorities',dur:10,notes:'Top 3 tasks',done:false,time:'5:30 AM'},{id:uid(),title:'Exercise',dur:30,notes:'Energise body & mind',done:false,time:'5:40 AM'},{id:uid(),title:'Deep work block 1',dur:90,notes:'Most important task first',done:false,time:'6:30 AM'},{id:uid(),title:'Batch emails',dur:20,notes:'Time-box this',done:false,time:'8:00 AM'}],
+       afternoon:[{id:uid(),title:'Meetings & calls',dur:60,notes:'Batched together',done:false,time:'1:00 PM'},{id:uid(),title:'Deep work block 2',dur:60,notes:'Creative / strategic',done:false,time:'2:30 PM'}],
+       night:[{id:uid(),title:'Journaling',dur:15,notes:'Wins, lessons, tomorrow',done:false,time:'9:00 PM'},{id:uid(),title:'Learning',dur:30,notes:'Books or podcasts',done:false,time:'9:15 PM'},{id:uid(),title:'Sleep',dur:450,notes:'7.5h target',done:false,time:'10:00 PM'}]}},
+  {id:'mindful',icon:'🧘',title:'Mindful Routine',desc:'Meditation, slow mornings & intentional rest for mental clarity.',
+    r:{morning:[{id:uid(),title:'Morning meditation',dur:15,notes:'Breath awareness',done:false,time:'7:00 AM'},{id:uid(),title:'Gratitude journal',dur:10,notes:'3 things grateful for',done:false,time:'7:15 AM'},{id:uid(),title:'Mindful breakfast',dur:20,notes:'No screens',done:false,time:'7:25 AM'}],
+       afternoon:[{id:uid(),title:'Mindful walk',dur:20,notes:'Notice surroundings',done:false,time:'1:00 PM'},{id:uid(),title:'Check-in journal',dur:10,notes:'How am I feeling?',done:false,time:'3:00 PM'}],
+       night:[{id:uid(),title:'Digital detox',dur:60,notes:'Screens off from 9 PM',done:false,time:'9:00 PM'},{id:uid(),title:'Evening meditation',dur:15,notes:'Body scan',done:false,time:'9:30 PM'},{id:uid(),title:'Sleep',dur:480,notes:'',done:false,time:'10:00 PM'}]}}
+];
+
+/* ══════════════════════════════════════════════
+   AUTH STORAGE
+══════════════════════════════════════════════ */
+function getAllUsers(){try{return JSON.parse(localStorage.getItem('rb_users')||'{}')}catch(e){return{}}}
+function saveAllUsers(u){localStorage.setItem('rb_users',JSON.stringify(u))}
+function getCurrentUser(){try{return JSON.parse(localStorage.getItem('rb_current')||'null')}catch(e){return null}}
+function setCurrentUser(u){localStorage.setItem('rb_current',JSON.stringify(u))}
+function clearCurrentUser(){localStorage.removeItem('rb_current')}
+function getUserData(email){return getAllUsers()[email]||null}
+function saveUserData(email,data){const all=getAllUsers();all[email]=data;saveAllUsers(all)}
+
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let S={
+  page:'dashboard',
+  user:null,
+  data:null,
+  tab:'morning',
+  showForm:false,
+  nStep:{title:'',dur:10,notes:'',time:''},
+  focus:{active:false,steps:[],idx:0,secs:0,paused:false,period:'',timer:null},
+  // onboarding temp
+  ob:{age:20,events:[],priorities:{morning:7,afternoon:6,evening:5}}
+};
+
+/* ══════════════════════════════════════════════
+   LANDING
+══════════════════════════════════════════════ */
+function setLandingGreeting(){
+  const h=new Date().getHours();
+  const g=h<12?'Good morning ☀️':h<17?'Good afternoon 🌤':' Good evening 🌙';
+  const el=document.getElementById('landing-greeting');
+  if(el)el.textContent=g;
+}
+
+/* ══════════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════════ */
+function openAuth(mode){
+  document.getElementById('auth-modal').classList.add('open');
+  renderAuthForm(mode);
+}
+function closeAuth(){document.getElementById('auth-modal').classList.remove('open')}
+function renderAuthForm(mode){
+  const isSU=mode==='signup';
+  document.getElementById('auth-content').innerHTML=`
+    <h2 class="modal-title">${isSU?'Create your account':'Welcome back'}</h2>
+    <p class="modal-sub">${isSU?'Start building better habits today':'Sign in to your account'}</p>
+    ${isSU?`<div class="fg"><label class="fl">Name</label><input id="a-name" placeholder="Your name" autocomplete="name"/><div class="ferr" id="e-name"></div></div>`:``}
+    <div class="fg"><label class="fl">Email</label><input id="a-email" type="email" placeholder="you@example.com"/><div class="ferr" id="e-email"></div></div>
+    <div class="fg"><label class="fl">Password</label><input id="a-pass" type="password" placeholder="${isSU?'Create a password (6+ chars)':'Your password'}"/><div class="ferr" id="e-pass"></div></div>
+    <div class="ferr" id="e-gen"></div>
+    <button class="btn btn-primary btn-full" style="margin-top:6px" onclick="submitAuth('${mode}')">${isSU?'Create account':'Sign in'}</button>
+    <div class="auth-sw">${isSU?'Already have an account? <a onclick="renderAuthForm(\'signin\')">Sign in</a>':'No account? <a onclick="renderAuthForm(\'signup\')">Sign up free</a>'}</div>
+  `;
+  setTimeout(()=>{
+    document.querySelectorAll('#auth-content input').forEach(inp=>{
+      inp.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuth(mode)});
+    });
+    document.getElementById('a-email')?.focus();
+  },60);
+}
+function showErr(id,msg){const el=document.getElementById(id);if(el){el.textContent=msg;el.classList.add('show')}}
+function clearErrs(){document.querySelectorAll('.ferr').forEach(e=>{e.classList.remove('show');e.textContent=''})}
+
+function submitAuth(mode){
+  clearErrs();
+  const email=(document.getElementById('a-email')?.value||'').trim().toLowerCase();
+  const pass=document.getElementById('a-pass')?.value||'';
+  const name=document.getElementById('a-name')?.value?.trim()||'';
+  let ok=true;
+  if(mode==='signup'&&!name){showErr('e-name','Name is required');ok=false}
+  if(!email||!email.includes('@')){showErr('e-email','Valid email required');ok=false}
+  if(pass.length<6){showErr('e-pass','Password must be at least 6 characters');ok=false}
+  if(!ok)return;
+  const users=getAllUsers();
+  if(mode==='signup'){
+    if(users[email]){showErr('e-email','An account with this email already exists');return}
+    const nd={name,password:pass,routines:defaultRoutines(),streak:0,chatHistory:[],profile:{age:null,events:[],priorities:{morning:7,afternoon:6,evening:5}}};
+    users[email]=nd;saveAllUsers(users);
+    S.user={email,name};S.data=nd;setCurrentUser({email,name});
+    closeAuth();
+    openOnboarding();
+  } else {
+    const u=users[email];
+    if(!u){showErr('e-email','No account found with this email');return}
+    if(u.password!==pass){showErr('e-pass','Incorrect password');return}
+    S.user={email,name:u.name};S.data=u;setCurrentUser({email,name:u.name});
+    closeAuth();showApp();
+  }
+}
+
+function signOut(){
+  clearCurrentUser();S.user=null;S.data=null;S.page='dashboard';
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('landing').classList.add('active');
+}
+
+function showApp(){
+  document.getElementById('landing').classList.remove('active');
+  document.getElementById('app').classList.add('active');
+  const init=(S.user.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('nav-avatar').textContent=init;
+  document.getElementById('nav-username').textContent=S.user.name;
+  S.page='dashboard';render();
+}
+
+function saveData(){if(S.user&&S.data)saveUserData(S.user.email,S.data)}
+
+/* ══════════════════════════════════════════════
+   ONBOARDING
+══════════════════════════════════════════════ */
+// Fine-grained age labels — each maps to a specific life stage with meaningful context
+const AGE_LABELS={
+  10:{label:'Pre-teen',context:'Short attention spans, play-based learning, lots of energy bursts, early bedtimes essential'},
+  12:{label:'Middle schooler',context:'Puberty onset, social pressure rising, need for structured study time and 9-10h sleep'},
+  14:{label:'High school freshman',context:'Academic load increasing, extracurriculars, identity formation, 8-9h sleep needed'},
+  16:{label:'High school student',context:'Exams, driving, part-time jobs, social life vs. study balance, 8-9h sleep recommended'},
+  18:{label:'High school senior / gap year',context:'College prep or transition phase, high stress, independence building, 8h sleep minimum'},
+  19:{label:'First-year university student',context:'New independence, irregular schedules, social adjustment, 7-9h sleep, nutrition often neglected'},
+  20:{label:'University student',context:'Peak cognitive capacity, heavy coursework, social demands, 7-9h sleep, stress management critical'},
+  22:{label:'Final-year student',context:'Thesis/capstone pressure, job searching, adulting anxiety, 7-8h sleep, structure helps greatly'},
+  23:{label:'Recent graduate',context:'Career entry, identity shift, financial pressure, forming adult routines for the first time'},
+  25:{label:'Early career professional',context:'Building career foundations, often overworking, social life priority, 7-8h sleep, fitness often neglected'},
+  27:{label:'Late 20s professional',context:'Career momentum, possibly first serious relationships/living alone, energy still high, habits forming fast'},
+  30:{label:'Established professional',context:'Career growth phase, higher responsibilities, possibly a partner, 7-8h sleep, stress management crucial'},
+  33:{label:'Early 30s adult',context:'Peak earning ambition, relationship building or parenting beginning, recovery time increases'},
+  35:{label:'Mid-career professional',context:'Leadership roles, possibly parenting, less time for self, proactive health habits now prevent future issues'},
+  38:{label:'Late 30s adult',context:'Metabolism slowing, stress accumulates, sleep quality matters more, work-life balance critical'},
+  40:{label:'40s adult',context:'Hormonal shifts beginning, energy dips, preventive health is highest priority, quality sleep over quantity'},
+  43:{label:'Mid-40s adult',context:'Career peak, children in school age, sandwich generation possible, mental health routines vital'},
+  45:{label:'Mid-life adult',context:'Perimenopause/testosterone decline possible, joint health matters, 7-8h sleep, stress reduction critical'},
+  50:{label:'Early 50s adult',context:'Major hormonal shifts, cholesterol/blood pressure watch, strength training crucial, social connection matters'},
+  55:{label:'Mid-50s adult',context:'Pre-retirement planning, possible chronic conditions beginning, cognitive exercises important, consistent sleep schedule'},
+  60:{label:'Early 60s adult',context:'Retirement approaching or beginning, more flexibility, balance and mobility exercises essential, social engagement vital'},
+  65:{label:'Retirement age',context:'Full retirement likely, physical activity prevents decline, strong sleep hygiene, purpose-driven mornings important'},
+  70:{label:'Active senior',context:'Mobility, balance, and cognitive health are top priorities, gentle movement daily, social connection and hydration critical'},
+  75:{label:'Senior adult',context:'Fall prevention, medication schedules, gentle routines, shorter sessions, prioritise comfort and wellbeing'},
+  80:{label:'Elder adult',context:'Gentle movement, cognitive stimulation, strong social bonds, consistent schedules for wellbeing and independence'}
+};
+function getAgeLabel(age){
+  const keys=Object.keys(AGE_LABELS).map(Number).sort((a,b)=>a-b);
+  let entry=AGE_LABELS[keys[0]];
+  for(const k of keys){if(age>=k)entry=AGE_LABELS[k];}
+  return entry;
+}
+function getAgeLabelShort(age){return getAgeLabel(age).label;}
+function getAgeContext(age){return getAgeLabel(age).context;}
+
+function openOnboarding(){
+  S.ob={age:20,events:[],priorities:{morning:7,afternoon:6,evening:5}};
+  document.getElementById('onboard-overlay').classList.add('open');
+  // set initial label
+  document.getElementById('age-display').textContent='20';
+  document.getElementById('age-label').textContent=getAgeLabelShort(20);
+  setObStep(1);
+  updateObProgress(1);
+}
+function setObStep(n){
+  document.querySelectorAll('.onboard-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('ob-step-'+n)?.classList.add('active');
+  updateObProgress(n);
+}
+function updateObProgress(current){
+  const el=document.getElementById('ob-progress');
+  if(!el)return;
+  el.innerHTML=[1,2,3].map(n=>`<div class="op-dot${n<=current?' done':''}"></div>`).join('');
+}
+function obNext(from){
+  if(from===1){
+    S.ob.age=parseInt(document.getElementById('age-slider').value);
+    setObStep(2);
+    // auto-suggest priority sliders based on age
+    const age=S.ob.age;
+    let m=7,a=6,e=5;
+    if(age<=17){m=8;a=7;e=6}
+    else if(age<=25){m=7;a=8;e=5}
+    else if(age<=35){m=6;a=8;e=6}
+    else if(age<=50){m=6;a=7;e=7}
+    else{m=7;a=5;e=8}
+    document.getElementById('pr-morning').value=m;
+    document.getElementById('pr-afternoon').value=a;
+    document.getElementById('pr-evening').value=e;
+    updatePrVal('morning',m);updatePrVal('afternoon',a);updatePrVal('evening',e);
+  } else if(from===2){
+    S.ob.events=[...document.querySelectorAll('.event-chip.selected')].map(c=>c.dataset.event);
+    setObStep(3);
+    updatePriorityHint();
+  }
+}
+function obBack(from){setObStep(from-1);updateObProgress(from-1)}
+function updatePrVal(id,val){
+  document.getElementById('prv-'+id).textContent=val;
+  S.ob.priorities[id]=parseInt(val);
+  updatePriorityHint();
+}
+function updatePriorityHint(){
+  const el=document.getElementById('priority-hint');if(!el)return;
+  const {morning:m,afternoon:a,evening:e}=S.ob.priorities;
+  const max=Math.max(m,a,e);
+  let hint='';
+  if(m===max)hint='Your <strong>mornings</strong> are your power hours — we\'ll front-load your most important habits early.';
+  else if(a===max)hint='Your <strong>afternoons</strong> are your peak — we\'ll schedule your deep work and key tasks mid-day.';
+  else hint='Your <strong>evenings</strong> are your focus time — we\'ll build strong wind-down and reflection habits at night.';
+  el.innerHTML='💡 '+hint;
+}
+function finishOnboarding(){
+  S.ob.priorities.morning=parseInt(document.getElementById('pr-morning').value);
+  S.ob.priorities.afternoon=parseInt(document.getElementById('pr-afternoon').value);
+  S.ob.priorities.evening=parseInt(document.getElementById('pr-evening').value);
+  S.ob.events=[...document.querySelectorAll('.event-chip.selected')].map(c=>c.dataset.event);
+  if(!S.data.profile)S.data.profile={};
+  S.data.profile.age=S.ob.age;
+  S.data.profile.events=S.ob.events;
+  S.data.profile.priorities=S.ob.priorities;
+  saveData();
+  document.getElementById('onboard-overlay').classList.remove('open');
+  showApp();
+}
+function skipOnboarding(){
+  document.getElementById('onboard-overlay').classList.remove('open');
+  showApp();
+}
+
+// Bind onboarding event chips
+document.addEventListener('click',e=>{
+  const chip=e.target.closest('.event-chip');
+  if(chip){chip.classList.toggle('selected')}
+  const fchip=e.target.closest('.focus-chip');
+  if(fchip){fchip.classList.toggle('selected')}
+});
+// Age slider live update
+document.getElementById('age-slider')?.addEventListener('input',function(){
+  document.getElementById('age-display').textContent=this.value;
+  document.getElementById('age-label').textContent=getAgeLabelShort(parseInt(this.value));
+});
+
+/* ══════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════ */
+function tod(){const h=new Date().getHours();return h<12?'morning':h<17?'afternoon':'evening'}
+function dateStr(){return new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}
+function totStats(){let d=0,t=0;['morning','afternoon','night'].forEach(p=>S.data.routines[p].forEach(s=>{t++;if(s.done)d++}));return{done:d,total:t}}
+function pct(){const{done,total}=totStats();return total?Math.round(done/total*100):0}
+function pPct(p){const s=S.data.routines[p];return s.length?Math.round(s.filter(x=>x.done).length/s.length*100):0}
+function totMins(){return['morning','afternoon','night'].reduce((a,p)=>a+S.data.routines[p].reduce((b,s)=>b+s.dur,0),0)}
+function bestP(){return Object.entries({morning:pPct('morning'),afternoon:pPct('afternoon'),night:pPct('night')}).sort((a,b)=>b[1]-a[1])[0]}
+function firstName(){return(S.user?.name||'').split(' ')[0]||'there'}
+
+/* ══════════════════════════════════════════════
+   PRIORITY BANNER — age-aware, detailed
+══════════════════════════════════════════════ */
+function buildPriorityBanner(){
+  const profile=S.data.profile;
+  if(!profile||!profile.age)return'';
+  const age=profile.age;
+  const events=profile.events||[];
+  const pr=profile.priorities||{};
+  const ageEntry=getAgeLabel(age);
+  const maxP=Object.entries(pr).sort((a,b)=>b[1]-a[1])[0];
+  const periodLabel=maxP?maxP[0]:'morning';
+
+  // Build age-specific core tip
+  let coreTip='';
+  if(age<=13)coreTip='At your age, <strong>sleep is the #1 priority</strong> — aim for 9–10 hours every night. Short, consistent habits beat long ones.';
+  else if(age<=17)coreTip='As a high schooler, your brain is still developing fast. <strong>8–9 hours of sleep</strong> boosts memory consolidation and focus during exams.';
+  else if(age<=22)coreTip='University years are when habits set for life. Your brain hits peak neuroplasticity — <strong>use mornings for deep learning</strong>, not scrolling.';
+  else if(age<=27)coreTip='Your late 20s are a high-energy window. <strong>Build career and fitness habits now</strong> — they compound dramatically over the next decade.';
+  else if(age<=32)coreTip='In your early 30s, recovery time begins to matter more. <strong>Prioritise sleep quality, hydration, and stress management</strong> alongside ambition.';
+  else if(age<=39)coreTip='Your mid-30s are a turning point. <strong>Proactive health habits now</strong> — strength training, sleep, stress reduction — prevent major issues later.';
+  else if(age<=49)coreTip='In your 40s, metabolism shifts and cortisol tolerance drops. <strong>Consistent sleep schedules, strength training, and recovery</strong> are non-negotiable.';
+  else if(age<=59)coreTip='Your 50s call for <strong>preventive focus</strong> — heart health, bone density, cognitive sharpness. Routine is your best long-term health tool.';
+  else if(age<=69)coreTip='In your 60s, <strong>movement and social connection</strong> are the biggest predictors of wellbeing. Build both into every day deliberately.';
+  else coreTip='At your stage, <strong>gentle consistency beats intensity</strong>. Focus on balance, mobility, hydration, and staying mentally engaged daily.';
+
+  // Event-specific additions
+  let extras=[];
+  if(events.includes('studying'))extras.push('Study in focused 25–45 min blocks with real breaks — the Pomodoro method works especially well at your age.');
+  if(events.includes('work'))extras.push('Batch similar work tasks together and protect at least one deep-work block from interruptions daily.');
+  if(events.includes('fitness'))extras.push(age<30?'Morning workouts suit younger metabolism — use the energy surge in the first half of your day.':'Strength training 3x/week preserves muscle mass and metabolism as you age — don\'t skip it.');
+  if(events.includes('parenting'))extras.push('Build routines that have flexibility buffers — kids are unpredictable. Protect 15 min of personal time every morning before the household wakes.');
+  if(events.includes('mental'))extras.push('Daily journaling and a consistent wind-down at night are the two highest-impact mental wellness habits. Start there.');
+  if(events.includes('health'))extras.push('Rest and light movement are active parts of recovery — don\'t replace them with productivity. Honour your body\'s healing needs.');
+  if(events.includes('sideproject'))extras.push('Protect a dedicated creative block — ideally morning or evening — where your side project gets full focus, not leftover energy.');
+
+  const extraHtml=extras.length?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--green-dim);font-size:12.5px;color:var(--text2);line-height:1.6">${extras.map(e=>`• ${e}`).join('<br>')}</div>`:'';
+
+  return`<div class="priority-banner">
+    <div class="pb-icon">🎯</div>
+    <div class="pb-text" style="width:100%">
+      <div class="pb-title">Age ${age} · ${ageEntry.label} — Your personalised focus</div>
+      <div style="font-size:12.5px;color:var(--text);line-height:1.6;margin-top:3px">${coreTip} Your top priority period is <strong>${periodLabel}</strong> — protect it.</div>
+      ${extraHtml}
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   RENDER
+══════════════════════════════════════════════ */
+function render(){
+  const el=document.getElementById('main');
+  const w=document.createElement('div');
+  w.className='fade-in';w.style.height='100%';
+  if(S.page==='dashboard')w.innerHTML=renderDashboard();
+  else if(S.page==='builder')w.innerHTML=renderBuilder();
+  else if(S.page==='insights')w.innerHTML=renderInsights();
+  else if(S.page==='templates')w.innerHTML=renderTemplates();
+  else if(S.page==='askai'){w.appendChild(buildAIPage());el.innerHTML='';el.appendChild(w);bindEvents();updateNavActive();return}
+  el.innerHTML='';el.appendChild(w);bindEvents();updateNavActive();
+}
+
+/* ══════════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════════ */
+function renderDashboard(){
+  const q=QUOTES[new Date().getDate()%QUOTES.length];const p=pct();const{done,total}=totStats();
+  return`
+  <div class="dash-greet">
+    <h2>Good ${tod()}, ${firstName()} 👋</h2>
+    <div class="dash-date">${dateStr()}</div>
+    <div class="dash-stats">
+      <div class="d-stat"><div class="dv" style="color:var(--green)">${S.data.streak}</div><div class="dl">day streak 🔥</div></div>
+      <div class="d-stat"><div class="dv">${done}/${total}</div><div class="dl">done today</div></div>
+      <div class="d-stat"><div class="dv">${p}%</div><div class="dl">complete</div></div>
+    </div>
+  </div>
+  ${buildPriorityBanner()}
+  <div class="quote-bar"><div class="quote-t">"${q.t}"</div><div class="quote-a">— ${q.a}</div></div>
+  <div class="card" style="margin-bottom:17px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;color:var(--text2);font-weight:500">Overall progress today</span>
+      <span style="font-size:13px;font-weight:600">${p}%</span>
+    </div>
+    <div class="prog"><div class="prog-fill" style="width:${p}%"></div></div>
+  </div>
+  ${['morning','afternoon','night'].map(period=>{
+    const steps=S.data.routines[period];
+    const pd=steps.filter(s=>s.done).length;
+    const pp=steps.length?Math.round(pd/steps.length*100):0;
+    const prVal=S.data.profile?.priorities?.[period==='night'?'evening':period]||5;
+    const prBadge=prVal>=8?'<span style="font-size:10px;padding:2px 6px;background:var(--green-dim);color:var(--green);border-radius:20px;font-weight:600;margin-left:6px">High priority</span>':'';
+    return`<div class="card" style="margin-bottom:12px">
+      <div class="sec-hdr">
+        <div class="sec-label">
+          <div class="pdot" style="background:${PC_HEX[period]}"></div>
+          <span style="text-transform:capitalize">${period}</span>
+          <span style="font-size:11.5px;color:var(--text3);font-weight:400;margin-left:3px">${pd}/${steps.length}</span>
+          ${prBadge}
+        </div>
+        <button class="btn btn-primary btn-sm start-focus" data-period="${period}">▶ Start</button>
+      </div>
+      <div class="prog" style="margin-bottom:11px"><div class="prog-fill" style="width:${pp}%;background:${PC_HEX[period]}"></div></div>
+      ${steps.slice(0,3).map(s=>stepRow(s,period,false)).join('')}
+      ${steps.length>3?`<div style="font-size:11.5px;color:var(--text3);padding:3px 12px">+${steps.length-3} more steps</div>`:''}
+    </div>`;
+  }).join('')}`;
+}
+
+function stepRow(s,period,editable=true){
+  return`<div class="step-item${s.done?' done':''}">
+    ${editable?`<span class="drag-h">⠿</span>`:''}
+    <div class="chk${s.done?' done':''}" data-check="${s.id}" data-period="${period}">✓</div>
+    <div style="flex:1;min-width:0">
+      <div class="sname">${s.title}</div>
+      ${s.notes?`<div class="snote">${s.notes}</div>`:''}
+    </div>
+    <div class="smeta">
+      ${s.time?`<span class="time-tag">${s.time}</span>`:''}
+      <span>${s.dur}m</span>
+    </div>
+    ${editable?`<button class="del-btn del-step" data-id="${s.id}" data-period="${period}">✕</button>`:''}
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   BUILDER
+══════════════════════════════════════════════ */
+function renderBuilder(){
+  const steps=S.data.routines[S.tab];
+  const tot=steps.reduce((a,s)=>a+s.dur,0);
+  return`<div class="pg-hdr"><h2 class="pg-title">Routine Builder</h2><p class="pg-sub">Add, reorder, and manage your daily steps</p></div>
+  <div class="r-tabs">${['morning','afternoon','night'].map(p=>`<button class="r-tab${S.tab===p?' active':''}" data-tab="${p}">${p[0].toUpperCase()+p.slice(1)}</button>`).join('')}</div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="pdot" style="background:${PC_HEX[S.tab]}"></div>
+        <span style="font-weight:600;text-transform:capitalize">${S.tab}</span>
+        <span style="font-size:11.5px;color:var(--text3)">${steps.length} steps · ${tot}m</span>
+      </div>
+      <button class="btn btn-primary btn-sm start-focus" data-period="${S.tab}">▶ Focus Mode</button>
+    </div>
+    <div id="steps-list">
+      ${steps.length===0?`<div style="text-align:center;padding:28px;color:var(--text3);font-size:13px">No steps yet. Add your first one below.</div>`:''}
+      ${steps.map((s,i)=>`<div class="step-item${s.done?' done':''}" draggable="true" data-idx="${i}">
+        <span class="drag-h">⠿</span>
+        <div class="chk${s.done?' done':''}" data-check="${s.id}" data-period="${S.tab}">✓</div>
+        <div style="flex:1;min-width:0"><div class="sname">${s.title}</div>${s.notes?`<div class="snote">${s.notes}</div>`:''}</div>
+        <div class="smeta">${s.time?`<span class="time-tag">${s.time}</span>`:''}<span>${s.dur}m</span></div>
+        <button class="del-btn del-step" data-id="${s.id}" data-period="${S.tab}">✕</button>
+      </div>`).join('')}
+    </div>
+    ${S.showForm?`<div class="add-form">
+      <div class="f-row"><input id="nt" placeholder="Step title" value="${S.nStep.title}"/><input id="nd" type="number" value="${S.nStep.dur}" style="max-width:70px"/><input id="ntm" value="${S.nStep.time}" placeholder="7:00 AM" style="max-width:110px"/></div>
+      <div class="f-row"><input id="nn" placeholder="Notes (optional)" value="${S.nStep.notes}"/></div>
+      <div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" id="save-step">Add Step</button><button class="btn btn-ghost btn-sm" id="cancel-form">Cancel</button></div>
+    </div>`:`<button class="btn btn-ghost btn-sm" id="show-form" style="margin-top:9px;width:100%;justify-content:center">+ Add Step</button>`}
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   INSIGHTS
+══════════════════════════════════════════════ */
+function renderInsights(){
+  const pp={morning:pPct('morning'),afternoon:pPct('afternoon'),night:pPct('night')};
+  const[bP,bV]=bestP();const h=Math.round(totMins()/6)/10;
+  const profile=S.data.profile;
+  return`<div class="pg-hdr"><h2 class="pg-title">Insights</h2><p class="pg-sub">Your habit patterns at a glance</p></div>
+  ${profile?.age?`<div class="card" style="margin-bottom:13px;background:var(--green-light);border-color:var(--green-dim)">
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--green)">Your profile</div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--text2)">
+      <div>🎂 Age <strong style="color:var(--text)">${profile.age} · ${getAgeLabelShort(profile.age)}</strong></div>
+      ${profile.events?.length?`<div>🎯 Focus: <strong style="color:var(--text)">${profile.events.slice(0,3).join(', ')}</strong></div>`:''}
+      <div>⬆️ Top priority: <strong style="color:var(--text);text-transform:capitalize">${Object.entries(profile.priorities||{}).sort((a,b)=>b[1]-a[1])[0]?.[0]||'morning'}</strong></div>
+    </div>
+  </div>`:''}
+  <div class="stats-3">
+    <div class="stat-box"><div class="stat-v" style="color:var(--green)">${S.data.streak}</div><div class="stat-l">Day streak 🔥</div></div>
+    <div class="stat-box"><div class="stat-v">${pct()}%</div><div class="stat-l">Today complete</div></div>
+    <div class="stat-box"><div class="stat-v">${Math.max(S.data.streak,7)}</div><div class="stat-l">Longest streak</div></div>
+  </div>
+  <div class="card" style="margin-bottom:13px">
+    <div style="font-size:13.5px;font-weight:600;margin-bottom:14px">Period completion</div>
+    ${['morning','afternoon','night'].map(p=>`<div style="margin-bottom:13px">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px">
+        <span style="text-transform:capitalize;color:var(--text2)">${p}</span>
+        <span style="font-weight:500">${pp[p]}%</span>
+      </div>
+      <div class="prog"><div class="prog-fill" style="width:${pp[p]}%;background:${PC_HEX[p]}"></div></div>
+    </div>`).join('')}
+  </div>
+  <div class="card">
+    <div style="font-size:13.5px;font-weight:600;margin-bottom:12px">Smart insights</div>
+    <div class="ins-row"><span style="font-size:17px">🌅</span><div class="ins-text">Most consistent period: <strong>${bP}</strong></div><div class="ins-val" style="color:var(--green)">${bV}%</div></div>
+    <div class="ins-row"><span style="font-size:17px">🔥</span><div class="ins-text">Current streak</div><div class="ins-val" style="color:var(--amber)">${S.data.streak} days</div></div>
+    <div class="ins-row"><span style="font-size:17px">⏱</span><div class="ins-text">Total daily routine time</div><div class="ins-val">${h}h</div></div>
+    <div class="ins-row"><span style="font-size:17px">✅</span><div class="ins-text">Tasks completed today</div><div class="ins-val">${totStats().done}/${totStats().total}</div></div>
+    <div class="ins-row"><span style="font-size:17px">💡</span><div class="ins-text">Batch similar tasks for better flow state</div></div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   TEMPLATES
+══════════════════════════════════════════════ */
+function renderTemplates(){
+  return`<div class="pg-hdr"><h2 class="pg-title">Templates</h2><p class="pg-sub">Start with a proven routine and make it yours</p></div>
+  <div class="tpl-grid">${TMPLS.map(t=>`<div class="tpl-card" data-tpl="${t.id}">
+    <div class="tpl-icon">${t.icon}</div><div class="tpl-title">${t.title}</div><div class="tpl-desc">${t.desc}</div>
+    <div style="margin-top:10px;display:flex;gap:4px;flex-wrap:wrap"><span class="chip chip-m">Morning</span><span class="chip chip-a">Afternoon</span><span class="chip chip-n">Night</span></div>
+  </div>`).join('')}</div>`;
+}
+
+/* ══════════════════════════════════════════════
+   ASK AI PAGE
+══════════════════════════════════════════════ */
+const QUICK_PROMPTS=['Build me a student routine','How do I wake up earlier?','Create a fitness routine','Help me sleep better','Optimise my morning','What habits should I start?'];
+
+function getSystemPrompt(){
+  const profile=S.data.profile;
+  const name=S.user.name;
+  const age=profile?.age||null;
+  const events=profile?.events||[];
+  const pr=profile?.priorities||{};
+
+  let sys=`You are a warm, knowledgeable daily routine coach inside a Routine Builder app. You speak like a smart friend — practical, specific, never preachy. The user's name is ${name}.`;
+
+  if(age){
+    const ageEntry=getAgeLabel(age);
+    sys+=`\n\nUSER PROFILE:\n- Age: ${age} (${ageEntry.label})\n- Life stage context: ${ageEntry.context}`;
+
+    // Deep age-specific coaching instructions
+    if(age<=13){
+      sys+=`\n\nAGE-SPECIFIC GUIDANCE FOR ${age}-YEAR-OLD:\n- Recommend 9-10 hours of sleep — non-negotiable at this age\n- Keep routines short and visual (15-20 min max per activity)\n- Avoid overwhelming them with too many habits at once — suggest 2-3 maximum\n- Encourage physical play, creativity, and screen-free wind-down\n- Homework time should be after a snack and movement break, not immediately after school\n- Suggest earlier bedtimes (8:30-9:30 PM)\n- Frame everything positively and fun — avoid clinical language`;
+    } else if(age<=17){
+      sys+=`\n\nAGE-SPECIFIC GUIDANCE FOR ${age}-YEAR-OLD:\n- Recommend 8-9 hours of sleep — teen brains need it for memory consolidation\n- Circadian rhythm naturally shifts later in teens — don't force 5 AM wakeups, 7-7:30 AM is fine\n- Protect study time in the afternoon (3-6 PM is often peak focus for teens)\n- Social life and identity exploration matter — routines should leave room for this\n- Suggest phone-free bedroom or no screens 1h before bed — blue light disrupts teen melatonin more\n- Include movement — sports, walks, anything that gets them off the chair\n- Avoid over-scheduling; teens shut down when overwhelmed`;
+    } else if(age<=22){
+      sys+=`\n\nAGE-SPECIFIC GUIDANCE FOR ${age}-YEAR-OLD:\n- University/college years: irregular schedules are common — help them build anchor habits not rigid timetables\n- Recommend 7-9 hours of sleep — cognitive performance drops sharply below 7h at this age\n- Mornings are powerful study windows (cortisol peaks naturally 7-9 AM) — suggest leveraging this\n- Nutrition often neglected — suggest simple high-protein breakfasts, staying hydrated\n- Social life is important for mental health — don't build routines that eliminate it\n- Study in focused blocks (Pomodoro: 25m work, 5m break) suits the young attention span\n- Screen time and doomscrolling are the biggest habit killers — address this directly\n- Budget mental health check-ins; stress and anxiety peak in university years`;
+    } else if(age<=27){
+      sys+=`\n\nAGE-SPECIFIC GUIDANCE FOR ${age}-YEAR-OLD:\n- High-energy, high-ambition phase — but burnout risk is real\n- Recommend 7-8 hours of sleep — sleep debt accumulates and isn't recoverable later\n- This is the ideal time to build fitness habits — metabolism is still fast but will shift\n- Career habit formation: suggest deep work blocks, email batching, end-of-day reviews\n- FOMO is real — routines should balance ambition with social time\n- Financial habits should be mentioned if relevant (saving, budgeting as morning habit)\n- Suggest tracking habits — this age group responds well to streaks and progress metrics`;
+    } else if(age<=32){
+      sys+=`\n\nAGE-SPECIFIC GUIDANCE FOR ${age}-YEAR-OLD:\n- Early 30s: lifestyle and habits are solidifying — this is a critical window\n- Recommend 7-8 hours of quality sleep — not just quantity\n- Recovery time starts to matter more — suggest warm-down, stretching, recovery days\n- Relationships may be deepening — include couple/family time considerations\n- Career is demanding — protect boundaries with work. Suggest shutdown rituals\n- Strength training 3x/week is now important to preserve muscle mass\n- Stress management is non-negotiable: journaling, meditation, or walking\n- Suggest meal prep as a habit to avoid poor nutrition choices during busy weeks`;
+    } else if(age<=39){
+      sys+=`\n\nAGE-SPECIFIC GUIDANCE FOR ${age}-YEAR-OLD:\n- Mid-30s: energy patterns shift, recovery takes longer\n- Recommend 7-8 hours sleep — sleep quality matters as much as quantity now\n- Metabolism slows ~1-2% per decade from 30 — strength training is critical to counter this\n- Cortisol from chronic stress has real health impacts now — stress reduction is a health priority, not a luxury\n- Possibly parenting or managing others — protect personal morning time fiercely\n- Cardiovascular exercise 3-4x/week for heart health\n- Limit alcohol — disrupts sleep quality and recovery at this age\n- Hydration and nutrition become more impactful — suggest morning hydration as first habit`;
+    } else if(age<=49){
+      sys+=`\n\nAGE-SPECIFIC GUIDANCE FOR ${age}-YEAR-OLD:\n- 40s: major metabolic and hormonal shifts\n- Recommend 7-8 hours of sleep — sleep architecture changes, suggest consistent bedtimes\n- Strength training 3-4x/week is critical — muscle loss accelerates (sarcopenia begins)\n- Cardiovascular health is top priority — daily movement, not just gym sessions\n- Hormonal changes (perimenopause in women, testosterone decline in men) affect energy, mood, and sleep — acknowledge this sensitively\n- Cognitive sharpness: suggest morning journaling, reading, or a learning habit to keep the mind sharp\n- Recovery takes 48h+ now — don't suggest back-to-back intense workouts\n- Reduce caffeine after noon — sleep architecture is more fragile now\n- Suggest annual health checks, proactive prevention as a routine`;
+    } else if(age<=59){
+      sys+=`\n\nAGE-SPECIFIC GUIDANCE FOR ${age}-YEAR-OLD:\n- 50s: preventive health is the single most important focus\n- Recommend 7-8 hours sleep — suggest consistent wake time even on weekends\n- Strength training is the #1 exercise recommendation — prevents frailty, maintains metabolism\n- Heart health: daily 20-30 min walking minimum, Mediterranean-style diet suggestions\n- Cognitive health: reading, puzzles, learning new skills, social engagement\n- Stress management now has direct cardiovascular consequences — meditation or breathwork\n- Possible pre-retirement planning — suggest purpose-oriented morning routines\n- Blood pressure, cholesterol — morning routine can include medication if relevant\n- Bone health: weight-bearing exercise, calcium, Vitamin D`;
+    } else if(age<=69){
+      sys+=`\n\nAGE-SPECIFIC GUIDANCE FOR ${age}-YEAR-OLD:\n- 60s: maintaining independence and vitality through consistent movement\n- Recommend 7-8 hours sleep — sleep tends to become lighter, suggest sleep hygiene\n- Daily walking (30 min) is the single best habit — suggest making it morning ritual\n- Balance and flexibility exercises are critical for fall prevention\n- Social connection is a powerful longevity predictor — build it into daily structure\n- Mental engagement: learning, reading, creative hobbies\n- Suggest gentler morning routines — no jarring alarms, gradual wake-up\n- Hydration is often forgotten — suggest explicit water habits\n- Retirement can remove structure — help them build purposeful mornings`;
+    } else {
+      sys+=`\n\nAGE-SPECIFIC GUIDANCE FOR ${age}-YEAR-OLD:\n- 70+: comfort, safety, and gentle consistency are the priority\n- Recommend 7-8 hours sleep — earlier bedtimes (9-10 PM) suit most seniors\n- Gentle movement daily: walks, chair exercises, tai chi, swimming\n- Fall prevention is critical — balance exercises, clear morning routines, no rushing\n- Medication schedules should be part of morning routine if applicable\n- Social engagement is the #1 predictor of cognitive health in seniors\n- Keep routines simple, warm, and achievable — avoid overwhelming complexity\n- Mental stimulation: puzzles, reading, light learning\n- Hydration is critical and often ignored — suggest explicit water habits morning and afternoon`;
+    }
+  }
+
+  if(events.length){
+    sys+=`\n\nLIFE EVENTS TO ACCOUNT FOR: ${events.join(', ')}`;
+    if(events.includes('studying'))sys+='\n- Prioritise spaced repetition and Pomodoro study blocks. Protect sleep — it consolidates learning.';
+    if(events.includes('work'))sys+='\n- Suggest clear work start/end rituals and deep work protection. Burnout is a risk.';
+    if(events.includes('fitness'))sys+='\n- Align workout timing to their age and energy. Recovery is as important as the workout.';
+    if(events.includes('parenting'))sys+='\n- Suggest flexible anchor habits and protecting 10-15 min of personal time daily.';
+    if(events.includes('mental'))sys+='\n- Journaling, breathwork, and consistent sleep are the highest-impact mental health habits.';
+    if(events.includes('health'))sys+='\n- Be sensitive — suggest gentle, achievable habits. Rest is productive during recovery.';
+    if(events.includes('sideproject'))sys+='\n- Protect a creative/focus block for the project — ideally morning energy or a fixed evening window.';
+  }
+
+  if(Object.keys(pr).length){
+    const maxPr=Object.entries(pr).sort((a,b)=>b[1]-a[1])[0];
+    sys+=`\n\nPRIORITY SETTINGS: Morning ${pr.morning||7}/10, Afternoon ${pr.afternoon||6}/10, Evening ${pr.evening||5}/10. Their top priority period is ${maxPr[0]} — weight your suggestions accordingly.`;
+  }
+
+  sys+=`\n\nROUTINE FORMAT: When generating a full routine, use 🌅 Morning, ☀️ Afternoon, 🌙 Night/Evening sections with specific steps and realistic durations in minutes. Make step durations realistic for the user's age and life stage — a 65-year-old should not have a 90-minute high-intensity workout. Keep replies under 220 words. Be warm, specific, and age-appropriate. If you write a full 3-period routine, end by asking if they want to apply it to their Builder.`;
+
+  return sys;
+}
+
+function getFB(msg){
+  const m=msg.toLowerCase();
+  const age=S.data.profile?.age||null;
+  const name=firstName();
+
+  if(/^(hi|hey|hello|yo)\b/.test(m.trim())){
+    const ageCtx=age?`, and I know you're ${age} years old (${getAgeLabelShort(age)})${S.data.profile?.events?.length?' — juggling: '+S.data.profile.events.join(', '):''}`:' — complete your profile to get age-personalised advice';
+    return`Hi ${name}! I'm your AI routine advisor${ageCtx}.\n\nAsk me to build a routine, improve your habits, or answer any productivity question — tailored to your real life!`;
+  }
+
+  if(/study|student|exam|learn|school/.test(m)){
+    if(age&&age<=17)return`Student routine for a ${age}-year-old:\n\n🌅 Morning: Wake 7am → Quick breakfast (10m) → Review notes (20m)\n☀️ Afternoon: School done → Snack + walk (20m) → Study 45m → Break 10m → Study 45m\n🌙 Night: Summarise key points (15m) → Wind-down, no screens (30m) → Sleep by 9:30pm (8-9h sleep target)\n\nWant me to apply this to your Builder?`;
+    if(age&&age>=30)return`Study routine for a working adult (age ${age}):\n\n🌅 Morning: Wake 6:30am → Breakfast (15m) → Review priority material (20m)\n☀️ Afternoon: Focused learning block (50m, Pomodoro) → Break (10m) → Apply/practice (40m)\n🌙 Night: Summarise & note gaps (15m) → Prep materials (10m) → Sleep 10pm\n\nWant me to apply this to your Builder?`;
+    return`Focused student routine:\n\n🌅 Morning: Wake 7am → Breakfast (15m) → Review notes (20m)\n☀️ Afternoon: Study block 90m (Pomodoro: 25m/5m) → Break 15m → Practice 45m\n🌙 Night: Summarise (20m) → Prep tomorrow (10m) → Sleep 9:30pm (8h target)\n\nWant me to apply this to your Builder?`;
+  }
+
+  if(/fitness|workout|exercise|gym|sport|train/.test(m)){
+    if(age&&age>=55)return`Fitness routine for age ${age}:\n\n🌅 Morning: Wake 7am → 25min walk → Stretching 10m → Healthy breakfast\n☀️ Afternoon: Strength training 30m (3x/week) or swim/cycle 30m\n🌙 Night: Gentle mobility 15m → Wind-down\n\nRecovery days are essential — aim for at least 2 rest days per week. Want me to apply this?`;
+    if(age&&age>=40)return`Fitness routine for age ${age}:\n\n🌅 Morning: Wake 6am → Warm-up + workout 45m (strength 3x/week, cardio 2x) → Protein breakfast\n☀️ Afternoon: 15m active walk break\n🌙 Night: Mobility & stretching 15m → Meal prep → Sleep 9:30pm\n\nAllow 48h between strength sessions — recovery is part of the programme. Want me to apply this?`;
+    return`Energising fitness routine:\n\n🌅 Morning: Wake 6am → Snack (10m) → Workout 55m → Shake & shower\n☀️ Afternoon: High-protein lunch → Active break 15m\n🌙 Night: Stretching 15m → Meal prep → Sleep 9:30pm\n\nShall I apply this to your Builder?`;
+  }
+
+  if(/sleep|bed|insomnia|tired|rest/.test(m)){
+    const sleepHours=age&&age<=17?'8-9 hours':age&&age>=60?'7-8 hours (lighter sleep at this stage is normal)':'7-8 hours';
+    const cafTip=age&&age>=40?'Cut caffeine after noon — sleep quality is more sensitive now':'Avoid caffeine after 2pm';
+    return`Sleep tips for age ${age||'your age'}:\n\n• Target ${sleepHours} per night\n• Fixed wake time — even weekends\n• No screens 60 min before bed\n• Dim lights at 9pm to trigger melatonin\n• Keep your room cool (18-20°C)\n• ${cafTip}\n\nWant a sleep-optimised evening routine built for your age?`;
+  }
+
+  if(/morning|wake|early|rise|alarm/.test(m)){
+    const wakeTime=age&&age<=17?'7-7:30 AM (teen circadian rhythm naturally runs later)':age&&age>=60?'6:30-7 AM (earlier natural wake is common at this age)':'6-7 AM';
+    const tip=age&&age>=40?'Skip the snooze — it fragments sleep quality at your age':'Drink 500ml water first — instant energy boost';
+    return`To wake up earlier (ideal: ${wakeTime} for age ${age||'you'}):\n\n1. Shift bedtime 15 min earlier every 3 days\n2. Alarm across the room\n3. Have something worth waking up for\n4. Bright light immediately — resets your circadian clock\n5. ${tip}\n\nWant a morning routine tailored to your age?`;
+  }
+
+  return`I can help you:\n\n• Build a daily routine personalised to age ${age||'your age (set in profile)'}\n• Improve habits around sleep, focus, fitness, or stress\n• Answer productivity & habit questions\n• Generate a schedule built around your real life stage\n\nWhat would you like to work on?`;
+}
+function hasFullRoutine(t){return t.includes('Morning')&&t.includes('Afternoon')&&t.includes('Night')}
+
+function buildAIPage(){
+  const container=document.createElement('div');
+  container.style.cssText='display:flex;flex-direction:column;height:calc(100vh - 54px)';
+  const history=S.data.chatHistory||[];
+  const init=(S.user.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  container.innerHTML=`
+  <div style="padding:22px 36px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">
+    <h2 class="pg-title" style="margin-bottom:2px">Ask AI</h2>
+    <p style="font-size:13px;color:var(--text3)">Your personal coach — personalised to your age, goals & life events</p>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:20px 36px;display:flex;flex-direction:column;gap:13px" id="ai-messages">
+    ${history.length===0?`<div style="display:flex;gap:12px;align-items:flex-start">
+      <div class="ai-avatar-sm">✦</div>
+      <div class="ai-bubble">Hi ${firstName()}! I'm your AI routine advisor${S.data.profile?.age?`, and I know you're ${S.data.profile.age} years old${S.data.profile.events?.length?' focused on: '+S.data.profile.events.join(', '):''}`:''}.
+
+Ask me to build a routine, suggest habits based on your life, or answer any productivity question! 💪</div>
+    </div>`:''}
+    ${history.map(m=>aiMsgHTML(m,init)).join('')}
+  </div>
+  <div style="flex-shrink:0;background:var(--surface);border-top:1px solid var(--border)">
+    <div style="display:flex;gap:7px;flex-wrap:wrap;padding:11px 36px 0;overflow-x:auto">
+      ${QUICK_PROMPTS.map(p=>`<button class="qp" data-qp="${p}">${p}</button>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px;padding:12px 36px 16px;align-items:flex-end">
+      <textarea class="ai-textarea" id="ai-ta" placeholder="Ask me anything about routines, habits, or productivity…" rows="1" style="flex:1"></textarea>
+      <button class="ai-send" id="ai-send">↑</button>
+    </div>
+  </div>`;
+  setTimeout(()=>{
+    const msgs=container.querySelector('#ai-messages');if(msgs)msgs.scrollTop=msgs.scrollHeight;
+    container.querySelectorAll('[data-qp]').forEach(b=>b.addEventListener('click',()=>{const ta=document.getElementById('ai-ta');if(ta){ta.value=b.dataset.qp;sendAI()}}));
+    container.querySelector('#ai-send')?.addEventListener('click',sendAI);
+    container.querySelector('#ai-ta')?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI()}});
+    container.querySelector('#ai-ta')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'});
+    container.querySelectorAll('[data-apply]').forEach(el=>el.addEventListener('click',applyAIRoutine));
+  },60);
+  return container;
+}
+
+function aiMsgHTML(m,init){
+  const isAI=m.role==='ai';
+  const applyBtn=isAI&&m.canApply?`<div><span class="apply-pill" data-apply="1">✦ Apply this routine →</span></div>`:'';
+  return`<div style="display:flex;gap:12px;align-items:flex-start${isAI?'':';flex-direction:row-reverse'}">
+    <div class="${isAI?'ai-avatar-sm':'user-avatar-sm'}">${isAI?'✦':init}</div>
+    <div class="${isAI?'ai-bubble':'user-bubble'}">${(m.text||'').replace(/</g,'&lt;')}${applyBtn}</div>
+  </div>`;
+}
+
+function appendAIMsg(m){
+  const c=document.getElementById('ai-messages');if(!c)return;
+  const init=(S.user.name||'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const d=document.createElement('div');d.innerHTML=aiMsgHTML(m,init);
+  c.appendChild(d.firstElementChild);c.scrollTop=c.scrollHeight;
+  d.querySelector('[data-apply]')?.addEventListener('click',applyAIRoutine);
+}
+function showTyping(){
+  const c=document.getElementById('ai-messages');if(!c)return;
+  const d=document.createElement('div');d.id='ai-typ';d.style.cssText='display:flex;gap:12px;align-items:flex-start';
+  d.innerHTML=`<div class="ai-avatar-sm">✦</div><div class="ai-bubble"><div class="typing-dots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function removeTyping(){document.getElementById('ai-typ')?.remove()}
+
+function applyAIRoutine(){
+  const id=uid();
+  S.data.routines={
+    morning:[{id:id+1,title:'Wake up & hydrate',dur:5,notes:'500ml water',done:false,time:'6:30 AM'},{id:id+2,title:'Morning movement',dur:15,notes:'Stretch or light yoga',done:false,time:'6:35 AM'},{id:id+3,title:'Breakfast',dur:20,notes:'No screens',done:false,time:'6:50 AM'},{id:id+4,title:'Plan your day',dur:10,notes:'Top 3 priorities',done:false,time:'7:10 AM'}],
+    afternoon:[{id:id+5,title:'Main focus block',dur:90,notes:'Deep work — no interruptions',done:false,time:'1:00 PM'},{id:id+6,title:'Break & walk',dur:15,notes:'Move your body',done:false,time:'2:30 PM'},{id:id+7,title:'Review progress',dur:10,notes:'What did I accomplish?',done:false,time:'4:00 PM'}],
+    night:[{id:id+8,title:'Digital wind-down',dur:15,notes:'Reduce screens',done:false,time:'9:00 PM'},{id:id+9,title:'Journaling',dur:15,notes:'Reflect on the day',done:false,time:'9:15 PM'},{id:id+10,title:'Reading',dur:20,notes:'Physical book preferred',done:false,time:'9:30 PM'},{id:id+11,title:'Sleep',dur:480,notes:'8 hours',done:false,time:'10:00 PM'}]
+  };
+  saveData();
+  const msg={role:'ai',text:'✅ Done! Your routine is in the Builder.\n\nGo to the Builder tab to customise it, add your own steps, or launch Focus Mode. You\'ve got this! 💪',canApply:false};
+  S.data.chatHistory.push(msg);saveData();appendAIMsg(msg);
+  setTimeout(()=>{S.page='builder';render()},900);
+}
+
+async function sendAI(){
+  const ta=document.getElementById('ai-ta');
+  const msg=(ta?.value||'').trim();if(!msg)return;
+  ta.value='';ta.style.height='';
+  const um={role:'user',text:msg};S.data.chatHistory.push(um);saveData();appendAIMsg(um);
+  showTyping();
+  let reply=getFB(msg);let canApply=false;
+  try{
+    const hist=S.data.chatHistory.slice(-10).map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}));
+    const resp=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer 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'},body:JSON.stringify({
+      model:'llama-3.3-70b-versatile',max_tokens:700,
+      messages:[{role:'system',content:getSystemPrompt()},...hist,{role:'user',content:msg}]
+    })});
+    const data=await resp.json();
+    if(data.choices?.[0]?.message?.content)reply=data.choices[0].message.content;
+  }catch(e){}
+  removeTyping();
+  canApply=hasFullRoutine(reply);
+  const am={role:'ai',text:reply,canApply};S.data.chatHistory.push(am);saveData();appendAIMsg(am);
+}
+
+/* ══════════════════════════════════════════════
+   BIND EVENTS
+══════════════════════════════════════════════ */
+function bindEvents(){
+  document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>{S.page=b.dataset.page;S.showForm=false;render()}));
+  document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{S.tab=b.dataset.tab;S.showForm=false;render()}));
+  document.querySelectorAll('[data-check]').forEach(el=>el.addEventListener('click',()=>{
+    const id=parseInt(el.dataset.check),p=el.dataset.period;
+    const s=S.data.routines[p].find(x=>x.id===id);if(s){s.done=!s.done;saveData();render()}
+  }));
+  document.querySelectorAll('.del-step').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    const id=parseInt(b.dataset.id),p=b.dataset.period;
+    S.data.routines[p]=S.data.routines[p].filter(s=>s.id!==id);saveData();render();
+  }));
+  const sf=document.getElementById('show-form');
+  if(sf)sf.addEventListener('click',()=>{S.showForm=true;render();setTimeout(()=>document.getElementById('nt')?.focus(),50)});
+  const cf=document.getElementById('cancel-form');
+  if(cf)cf.addEventListener('click',()=>{S.showForm=false;S.nStep={title:'',dur:10,notes:'',time:''};render()});
+  const ss=document.getElementById('save-step');
+  if(ss)ss.addEventListener('click',()=>{
+    const t=(document.getElementById('nt')?.value||'').trim();if(!t)return;
+    S.data.routines[S.tab].push({id:uid(),title:t,dur:parseInt(document.getElementById('nd')?.value)||10,notes:(document.getElementById('nn')?.value||'').trim(),time:(document.getElementById('ntm')?.value||'').trim(),done:false});
+    saveData();S.showForm=false;S.nStep={title:'',dur:10,notes:'',time:''};render();
+  });
+  ['nt','nd','ntm','nn'].forEach(id=>{document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('save-step')?.click()})});
+  document.querySelectorAll('.start-focus').forEach(b=>b.addEventListener('click',()=>{
+    const p=b.dataset.period;const steps=S.data.routines[p].filter(s=>!s.done);
+    if(!steps.length){alert('All '+p+' steps are done! 🎉');return}
+    startFocus(steps,p);
+  }));
+  document.querySelectorAll('[data-tpl]').forEach(c=>c.addEventListener('click',()=>{
+    const tpl=TMPLS.find(t=>t.id===c.dataset.tpl);if(!tpl)return;
+    if(!confirm('Apply "'+tpl.title+'"? This replaces your current routines.'))return;
+    S.data.routines=JSON.parse(JSON.stringify(tpl.r));
+    ['morning','afternoon','night'].forEach(p=>S.data.routines[p].forEach(s=>s.id=uid()));
+    saveData();S.page='builder';render();
+  }));
+  if(S.page==='builder'){
+    const list=document.getElementById('steps-list');if(list){
+      let di=null;
+      list.querySelectorAll('[draggable]').forEach((el,i)=>{
+        el.addEventListener('dragstart',()=>{di=i;el.style.opacity='.4'});
+        el.addEventListener('dragend',()=>{el.style.opacity='1'});
+        el.addEventListener('dragover',e=>e.preventDefault());
+        el.addEventListener('drop',()=>{
+          if(di===null||di===i)return;
+          const arr=S.data.routines[S.tab];const[m]=arr.splice(di,1);arr.splice(i,0,m);
+          di=null;saveData();render();
+        });
+      });
+    }
+  }
+}
+function updateNavActive(){document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===S.page))}
+
+/* ══════════════════════════════════════════════
+   FOCUS MODE
+══════════════════════════════════════════════ */
+function startFocus(steps,period){
+  if(S.focus.timer)clearInterval(S.focus.timer);
+  S.focus={active:true,steps,idx:0,secs:steps[0].dur*60,paused:false,period,timer:null};
+  document.getElementById('focus-ov').classList.add('open');
+  updateFocusUI();
+  S.focus.timer=setInterval(()=>{
+    if(S.focus.paused)return;
+    S.focus.secs--;
+    if(S.focus.secs<=0){
+      markDone();S.focus.idx++;
+      if(S.focus.idx>=S.focus.steps.length){exitFocus();alert('Routine complete! 🎉');return}
+      S.focus.secs=S.focus.steps[S.focus.idx].dur*60;updateFocusUI();return;
+    }
+    const m=Math.floor(S.focus.secs/60),s2=S.focus.secs%60;
+    document.getElementById('fp-timer').textContent=String(m).padStart(2,'0')+':'+String(s2).padStart(2,'0');
+  },1000);
+  document.getElementById('fp-play').onclick=()=>{S.focus.paused=!S.focus.paused;document.getElementById('fp-play').textContent=S.focus.paused?'Resume':'Pause'};
+  document.getElementById('fp-skip').onclick=()=>{markDone();S.focus.idx++;if(S.focus.idx>=S.focus.steps.length){exitFocus();return}S.focus.secs=S.focus.steps[S.focus.idx].dur*60;updateFocusUI()};
+  document.getElementById('fp-exit').onclick=exitFocus;
+}
+function markDone(){const s=S.data.routines[S.focus.period].find(x=>x.id===S.focus.steps[S.focus.idx].id);if(s){s.done=true;saveData()}}
+function updateFocusUI(){
+  const step=S.focus.steps[S.focus.idx];const next=S.focus.steps[S.focus.idx+1];
+  document.getElementById('fp-period').textContent=S.focus.period.toUpperCase()+' ROUTINE';
+  document.getElementById('fp-task').textContent=step.title;
+  document.getElementById('fp-timer').textContent=String(step.dur).padStart(2,'0')+':00';
+  document.getElementById('fp-next').textContent=next?'Next: '+next.title:'Last step';
+  document.getElementById('fp-dots').innerHTML=S.focus.steps.map((_,i)=>`<div class="fdot" style="background:${i===S.focus.idx?'#A8D5B9':'rgba(255,255,255,.18)'}"></div>`).join('');
+}
+function exitFocus(){clearInterval(S.focus.timer);S.focus.timer=null;S.focus.active=false;document.getElementById('focus-ov').classList.remove('open');render()}
+
+/* ══════════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  setLandingGreeting();
+  const ex=getCurrentUser();
+  if(ex){
+    const udata=getUserData(ex.email);
+    if(udata){S.user=ex;S.data=udata;showApp();return}
+  }
+  document.getElementById('landing').classList.add('active');
+});
+</script>
+</body>
+</html>
